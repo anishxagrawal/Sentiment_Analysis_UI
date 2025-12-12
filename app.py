@@ -233,42 +233,33 @@ with tab2:
                             st.plotly_chart(fig_pie, use_container_width=True)
                         
                         with viz_col2:
-                            # Histogram - Confidence Distribution
-                            fig_hist = go.Figure(data=[go.Histogram(
-                                x=results_df['confidence'],
-                                nbinsx=20,
-                                marker=dict(
-                                    color='#64B5F6',  # Soft blue
-                                    line=dict(color='#1976D2', width=1)
-                                ),
-                                hovertemplate='Confidence: %{x:.2%}<br>Count: %{y}<extra></extra>'
-                            )])
-                            
                             fig_hist.update_layout(
-                                title={
-                                    'text': 'Confidence Score Distribution',
-                                    'font': {'size': 18, 'color': '#E0E0E0'}
-                                },
-                                xaxis=dict(
-                                    title='Confidence Score',
-                                    titlefont=dict(color='#E0E0E0'),
-                                    tickfont=dict(color='#B0B0B0'),
-                                    gridcolor='#3d3d3d'
+                            title=dict(
+                                text="Confidence Score Distribution",
+                                font=dict(size=18, color="#E0E0E0")
+                            ),
+                            xaxis=dict(
+                                title=dict(
+                                    text="Confidence Score",
+                                    font=dict(color="#E0E0E0")
                                 ),
-                                yaxis=dict(
-                                    title='Number of Texts',
-                                    titlefont=dict(color='#E0E0E0'),
-                                    tickfont=dict(color='#B0B0B0'),
-                                    gridcolor='#3d3d3d'
+                                tickfont=dict(color="#B0B0B0"),
+                                gridcolor="#3d3d3d"
+                            ),
+                            yaxis=dict(
+                                title=dict(
+                                    text="Number of Texts",
+                                    font=dict(color="#E0E0E0")
                                 ),
-                                height=400,
-                                paper_bgcolor='rgba(0,0,0,0)',
-                                plot_bgcolor='rgba(30,30,30,0.3)',
-                                showlegend=False
-                            )
-                            
-                            st.plotly_chart(fig_hist, use_container_width=True)
-                        
+                                tickfont=dict(color="#B0B0B0"),
+                                gridcolor="#3d3d3d"
+                            ),
+                            height=400,
+                            paper_bgcolor="rgba(0,0,0,0)",
+                            plot_bgcolor="rgba(30,30,30,0.3)",
+                            showlegend=False
+                        )
+
                         # Bar Chart - Sentiment Timeline
                         st.markdown("#### Sentiment Timeline")
                         
