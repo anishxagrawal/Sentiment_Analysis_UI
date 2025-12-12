@@ -242,15 +242,26 @@ with tab2:
                             fig_hist = go.Figure(
                                 data=[
                                     go.Histogram(
-                                        x=results_df["confidence"],
-                                        nbinsx=20
+                                    x=results_df["confidence"],
+                                    nbinsx=20,
+                                    marker=dict(color="#64B5F6")
                                     )
                                 ]
                             )
 
+                            fig_hist.update_layout(
+                                title=dict(
+                                    text="Confidence Score Distribution",
+                                    font=dict(size=18)
+                                ),
+                                xaxis_title="Confidence Score",
+                                yaxis_title="Number of Texts",
+                                height=400,
+                                showlegend=False
+                            )
+
                         st.plotly_chart(fig_hist, use_container_width=True)
 
-                        
                         # Bar Chart - Sentiment Timeline
                         st.markdown("#### Sentiment Timeline")
                         
@@ -273,33 +284,34 @@ with tab2:
                             ))
                         
                         fig_timeline.update_layout(
-                            title={
-                                'text': "Sentiment Confidence by Text Order",
-                                'font': {'size': 18, 'color': '#E0E0E0'}
-                            },
+                            title=dict(
+                                text="Sentiment Confidence by Text Order",
+                                font=dict(size=18)
+                            ),
                             xaxis=dict(
-                                title="Text Number",
-                                titlefont=dict(color='#E0E0E0'),
-                                tickfont=dict(color='#B0B0B0'),
-                                gridcolor='#3d3d3d'
+                                title=dict(
+                                    text="Text Number",
+                                    font=dict(size=14)
+                                ),
+                                tickfont=dict(size=12),
+                                gridcolor="#3d3d3d"
                             ),
                             yaxis=dict(
-                                title="Confidence Score",
-                                titlefont=dict(color='#E0E0E0'),
-                                tickfont=dict(color='#B0B0B0'),
-                                gridcolor='#3d3d3d'
+                                title=dict(
+                                    text="Confidence Score",
+                                    font=dict(size=14)
+                                ),
+                                tickfont=dict(size=12),
+                                gridcolor="#3d3d3d",
+                                range=[0, 1]   # confidence is 0–1, makes plot stable
                             ),
                             height=400,
-                            paper_bgcolor='rgba(0,0,0,0)',
-                            plot_bgcolor='rgba(30,30,30,0.3)',
-                            hovermode='x unified',
-                            barmode='overlay',
-                            legend=dict(
-                                font=dict(size=12, color='#E0E0E0'),
-                                bgcolor='rgba(50,50,50,0.5)'
-                            )
+                            paper_bgcolor="rgba(0,0,0,0)",
+                            plot_bgcolor="rgba(30,30,30,0.3)",
+                            barmode="group",        # ✅ safer than overlay
+                            showlegend=True
                         )
-                        
+
                         st.plotly_chart(fig_timeline, use_container_width=True)
                         
                         # Display results table
