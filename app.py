@@ -206,68 +206,116 @@ with tab2:
                                 labels=sentiment_counts.index,
                                 values=sentiment_counts.values,
                                 hole=0.4,
-                                marker=dict(colors=['#00D26A', '#FF4B4B']),
+                                marker=dict(
+                                    colors=['#4CAF50', '#F44336'],  # Softer green and red
+                                    line=dict(color='#2d2d2d', width=2)
+                                ),
                                 textinfo='label+percent',
-                                textfont_size=14
+                                textfont=dict(size=15, color='white')
                             )])
                             
                             fig_pie.update_layout(
-                                title="Sentiment Distribution",
+                                title={
+                                    'text': "Sentiment Distribution",
+                                    'font': {'size': 18, 'color': '#E0E0E0'}
+                                },
                                 showlegend=True,
-                                height=400
+                                height=400,
+                                paper_bgcolor='rgba(0,0,0,0)',
+                                plot_bgcolor='rgba(0,0,0,0)',
+                                font=dict(color='#E0E0E0'),
+                                legend=dict(
+                                    font=dict(size=12, color='#E0E0E0'),
+                                    bgcolor='rgba(50,50,50,0.5)'
+                                )
                             )
                             
                             st.plotly_chart(fig_pie, use_container_width=True)
                         
                         with viz_col2:
                             # Histogram - Confidence Distribution
-                            fig_hist = px.histogram(
-                                results_df,
-                                x='confidence',
-                                nbins=20,
-                                title='Confidence Score Distribution',
-                                labels={'confidence': 'Confidence Score', 'count': 'Frequency'},
-                                color_discrete_sequence=['#1f77b4']
-                            )
+                            fig_hist = go.Figure(data=[go.Histogram(
+                                x=results_df['confidence'],
+                                nbinsx=20,
+                                marker=dict(
+                                    color='#64B5F6',  # Soft blue
+                                    line=dict(color='#1976D2', width=1)
+                                ),
+                                hovertemplate='Confidence: %{x:.2%}<br>Count: %{y}<extra></extra>'
+                            )])
                             
                             fig_hist.update_layout(
-                                showlegend=False,
+                                title={
+                                    'text': 'Confidence Score Distribution',
+                                    'font': {'size': 18, 'color': '#E0E0E0'}
+                                },
+                                xaxis=dict(
+                                    title='Confidence Score',
+                                    titlefont=dict(color='#E0E0E0'),
+                                    tickfont=dict(color='#B0B0B0'),
+                                    gridcolor='#3d3d3d'
+                                ),
+                                yaxis=dict(
+                                    title='Number of Texts',
+                                    titlefont=dict(color='#E0E0E0'),
+                                    tickfont=dict(color='#B0B0B0'),
+                                    gridcolor='#3d3d3d'
+                                ),
                                 height=400,
-                                xaxis_title="Confidence Score",
-                                yaxis_title="Number of Texts"
+                                paper_bgcolor='rgba(0,0,0,0)',
+                                plot_bgcolor='rgba(30,30,30,0.3)',
+                                showlegend=False
                             )
                             
                             st.plotly_chart(fig_hist, use_container_width=True)
                         
-                        # Bar Chart - Sentiment by Index (Timeline)
+                        # Bar Chart - Sentiment Timeline
                         st.markdown("#### Sentiment Timeline")
                         
                         results_df['index'] = range(1, len(results_df) + 1)
-                        results_df['color'] = results_df['sentiment'].map({
-                            'POSITIVE': '#00D26A',
-                            'NEGATIVE': '#FF4B4B'
-                        })
                         
                         fig_timeline = go.Figure()
                         
-                        for sentiment in ['POSITIVE', 'NEGATIVE']:
+                        for sentiment, color in [('POSITIVE', '#66BB6A'), ('NEGATIVE', '#EF5350')]:
                             df_sentiment = results_df[results_df['sentiment'] == sentiment]
                             
                             fig_timeline.add_trace(go.Bar(
                                 x=df_sentiment['index'],
                                 y=df_sentiment['confidence'],
                                 name=sentiment,
-                                marker_color='#00D26A' if sentiment == 'POSITIVE' else '#FF4B4B',
+                                marker=dict(
+                                    color=color,
+                                    line=dict(color='#2d2d2d', width=1)
+                                ),
                                 hovertemplate='<b>Text %{x}</b><br>Confidence: %{y:.2%}<extra></extra>'
                             ))
                         
                         fig_timeline.update_layout(
-                            title="Sentiment Confidence by Text Order",
-                            xaxis_title="Text Number",
-                            yaxis_title="Confidence Score",
+                            title={
+                                'text': "Sentiment Confidence by Text Order",
+                                'font': {'size': 18, 'color': '#E0E0E0'}
+                            },
+                            xaxis=dict(
+                                title="Text Number",
+                                titlefont=dict(color='#E0E0E0'),
+                                tickfont=dict(color='#B0B0B0'),
+                                gridcolor='#3d3d3d'
+                            ),
+                            yaxis=dict(
+                                title="Confidence Score",
+                                titlefont=dict(color='#E0E0E0'),
+                                tickfont=dict(color='#B0B0B0'),
+                                gridcolor='#3d3d3d'
+                            ),
                             height=400,
+                            paper_bgcolor='rgba(0,0,0,0)',
+                            plot_bgcolor='rgba(30,30,30,0.3)',
                             hovermode='x unified',
-                            barmode='overlay'
+                            barmode='overlay',
+                            legend=dict(
+                                font=dict(size=12, color='#E0E0E0'),
+                                bgcolor='rgba(50,50,50,0.5)'
+                            )
                         )
                         
                         st.plotly_chart(fig_timeline, use_container_width=True)
