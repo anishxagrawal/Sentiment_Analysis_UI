@@ -1,6 +1,8 @@
 import streamlit as st
 import requests
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 
 # Configure page
 st.set_page_config(
@@ -168,7 +170,7 @@ with tab2:
                         result = response.json()
                         
                         # Display summary
-                        st.markdown("### 📊 Summary")
+                        st.markdown("### 📊 Summary Statistics")
                         
                         col1, col2, col3, col4 = st.columns(4)
                         
@@ -188,28 +190,118 @@ with tab2:
                         else:
                             st.error(f"😔 Overall sentiment: **Negative** ({result['summary']['negative_count']} out of {result['total_processed']})")
                         
+                        # Create DataFrame for visualizations
+                        results_df = pd.DataFrame(result["results"])
+                        
+                        # ==================== VISUALIZATIONS ====================
+                        st.markdown("### 📈 Visual Insights")
+                        
+                        viz_col1, viz_col2 = st.columns(2)
+                        
+                        with viz_col1:
+                            # Pie Chart - Sentiment Distribution
+                            sentiment_counts = results_df['sentiment'].value_counts()
+                            
+                            fig_pie = go.Figure(data=[go.Pie(
+                                labels=sentiment_counts.index,
+                                values=sentiment_counts.values,
+                                hole=0.4,
+                                marker=dict(colors=['#00D26A', '#FF4B4B']),
+                                textinfo='label+percent',
+                                textfont_size=14
+                            )])
+                            
+                            fig_pie.update_layout(
+                                title="Sentiment Distribution",
+                                showlegend=True,
+                                height=400
+                            )
+                            
+                            st.plotly_chart(fig_pie, use_container_width=True)
+                        
+                        with viz_col2:
+                            # Histogram - Confidence Distribution
+                            fig_hist = px.histogram(
+                                results_df,
+                                x='confidence',
+                                nbins=20,
+                                title='Confidence Score Distribution',
+                                labels={'confidence': 'Confidence Score', 'count': 'Frequency'},
+                                color_discrete_sequence=['#1f77b4']
+                            )
+                            
+                            fig_hist.update_layout(
+                                showlegend=False,
+                                height=400,
+                                xaxis_title="Confidence Score",
+                                yaxis_title="Number of Texts"
+                            )
+                            
+                            st.plotly_chart(fig_hist, use_container_width=True)
+                        
+                        # Bar Chart - Sentiment by Index (Timeline)
+                        st.markdown("#### Sentiment Timeline")
+                        
+                        results_df['index'] = range(1, len(results_df) + 1)
+                        results_df['color'] = results_df['sentiment'].map({
+                            'POSITIVE': '#00D26A',
+                            'NEGATIVE': '#FF4B4B'
+                        })
+                        
+                        fig_timeline = go.Figure()
+                        
+                        for sentiment in ['POSITIVE', 'NEGATIVE']:
+                            df_sentiment = results_df[results_df['sentiment'] == sentiment]
+                            
+                            fig_timeline.add_trace(go.Bar(
+                                x=df_sentiment['index'],
+                                y=df_sentiment['confidence'],
+                                name=sentiment,
+                                marker_color='#00D26A' if sentiment == 'POSITIVE' else '#FF4B4B',
+                                hovertemplate='<b>Text %{x}</b><br>Confidence: %{y:.2%}<extra></extra>'
+                            ))
+                        
+                        fig_timeline.update_layout(
+                            title="Sentiment Confidence by Text Order",
+                            xaxis_title="Text Number",
+                            yaxis_title="Confidence Score",
+                            height=400,
+                            hovermode='x unified',
+                            barmode='overlay'
+                        )
+                        
+                        st.plotly_chart(fig_timeline, use_container_width=True)
+                        
                         # Display results table
                         st.markdown("### 📋 Detailed Results")
                         
-                        results_df = pd.DataFrame(result["results"])
-                        results_df["confidence"] = results_df["confidence"].apply(lambda x: f"{x*100:.2f}%")
+                        # Format for display
+                        display_df = results_df.copy()
+                        display_df["confidence"] = display_df["confidence"].apply(lambda x: f"{x*100:.2f}%")
                         
                         # Add emoji column
-                        results_df["emoji"] = results_df["sentiment"].apply(
+                        display_df["emoji"] = display_df["sentiment"].apply(
                             lambda x: "😊" if x == "POSITIVE" else "😞"
                         )
                         
                         # Reorder columns
-                        results_df = results_df[["emoji", "text", "sentiment", "confidence"]]
+                        display_df = display_df[["emoji", "text", "sentiment", "confidence"]]
+                        
+                        # Color-code the dataframe
+                        def highlight_sentiment(row):
+                            if row['sentiment'] == 'POSITIVE':
+                                return ['background-color: #d4edda'] * len(row)
+                            else:
+                                return ['background-color: #f8d7da'] * len(row)
                         
                         st.dataframe(
-                            results_df,
+                            display_df.style.apply(highlight_sentiment, axis=1),
                             use_container_width=True,
                             hide_index=True
                         )
                         
                         # Download button
-                        csv = results_df.to_csv(index=False)
+                        csv = results_df[['text', 'sentiment', 'confidence']].to_csv(index=False)
                         st.download_button(
                             label="📥 Download Results as CSV",
                             data=csv,
