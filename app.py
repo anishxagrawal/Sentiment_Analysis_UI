@@ -331,10 +331,15 @@ with tab2:
                         
                         # Color-code the dataframe
                         def highlight_sentiment(row):
-                            if row['sentiment'] == 'POSITIVE':
-                                return ['background-color: #d4edda'] * len(row)
+                            if row["sentiment"] == "POSITIVE":
+                                return [
+                                    "background-color: #1E3D34; color: #E8F5E9"
+                                ] * len(row)
                             else:
-                                return ['background-color: #f8d7da'] * len(row)
+                                return [
+                                    "background-color: #3D1E1E; color: #FDECEA"
+                                ] * len(row)
+
                         
                         st.dataframe(
                             display_df.style.apply(highlight_sentiment, axis=1),
