@@ -81,7 +81,7 @@ with tab1:
                             st.warning(f"⚠️ {result['error']}")
                         else:
                             label = result["sentiment"]
-                            confidence = result["confidence"] * 100
+                            confidence = result["score"] * 100
     
                             if label.lower() == "positive":
                                 st.success(f"😊 Sentiment: **Positive**\n\nConfidence: **{confidence:.2f}%**")
